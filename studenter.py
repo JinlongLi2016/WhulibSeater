@@ -171,7 +171,8 @@ class Student():
         # post(get?) the data 
         response = self._reserver.open(req)
         page = response.read().decode('utf-8')
-        if "验证码错误" in page:
+        
+        if "验证码错误" in page or "预约失败!" in page:
             return False
         elif "系统已经为您预定好了" in page:
             return True
