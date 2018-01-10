@@ -35,7 +35,7 @@
 			
 		has_reserved = s.reserve_seat(verification_code)
 
-	# 代码运行至此, 我们应该已预定在reserve_information中设定的位置
+	# 代码运行至此, 我们应该已预定在reserve_information中设定的座位
 
 	
 	
