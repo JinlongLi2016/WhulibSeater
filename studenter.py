@@ -54,12 +54,22 @@ class Student():
             img = Image.open('__t.jpg')
             img.show()
             verification_code = input("please input the code:")
+
+            if not self.__check_verification_code(verification_code):
+                print("The last verification is wrong")
+                continue
+            
             fname = verification_code+'.jpg'
             fname = os.path.join('train_pic', fname)
 
             plt.imsave(fname = fname, arr = captcha_array)
         os.remove('__t.jpg')
-
+    
+    def __check_verification_code(self, verification_code):
+        """Used to check verification code when collecting captchas"""
+        flag = self.login(verification_code)
+        return flag
+        
     def set_reserve_information(self, seat_information):
         """set reserving seat's information (building, room, seat, time
 
@@ -171,7 +181,7 @@ class Student():
         # post(get?) the data 
         response = self._reserver.open(req)
         page = response.read().decode('utf-8')
-        
+
         if "验证码错误" in page or "预约失败!" in page:
             return False
         elif "系统已经为您预定好了" in page:
