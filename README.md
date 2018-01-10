@@ -7,7 +7,7 @@
 	from studenter import Student
 	from modeler import ModelHandler
 	
-	# 创建一个学生对象 (处理和服务器交互)
+	# 创建一个学生对象 (处理和网页交互)
 	s = Student(id, password)
 	s.set_reserve_information(reserve_information) #设置所要预定的位置信息.reserve_information是一个含有与预定相关的信息的字典
 	
