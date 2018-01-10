@@ -1,8 +1,9 @@
 # WhulibSeater
-Naughty program to crack whulib seat reserving system
+
+**Naughty** program to crack whulib seat reserving system.
 
 # Usage
-## 以一个简单的小程序开始这趟旅行
+## 用法示例
 	from studenter import Student
 	from modeler import ModelHandler
 	
@@ -34,7 +35,7 @@ Naughty program to crack whulib seat reserving system
 			
 		has_reserved = s.reserve_seat(verification_code)
 
-	
+	# 代码运行到这里, 我们应该已经预定了一个位置
 
 	
 	
