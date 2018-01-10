@@ -19,7 +19,7 @@ class Student():
 
     The class represents a student whose main activities are to interacting
     with remote hosts.It contains information of the students, reserving
-    seats' information but should never deal with the details of CAPTCHA part.
+    seats' information and should never deal with the details of CAPTCHA part.
     All it needs to do is to use APIs of CAPTCHA(model) part.
     """
     def __init__(self, id, password):
@@ -169,13 +169,20 @@ class Student():
         """
         req = self.__construct_reserve_request(verification_code)
         # post(get?) the data 
-        self._reserver.open(req)
+        response = self._reserver.open(req)
+        page = response.read().decode('utf-8')
+        if "验证码错误" in page:
+            return False
+        elif "系统已经为您预定好了" in page:
+            return True
+        else:
+            raise ValueError("Something wrong happens.")
+        # any better ways to check?
 
     def query(self, query_information):
         """Query available seats
 
         Query available seats using query_information.
-
         Return {seat_num: system_seat_id}
         """
         req = self.__construct_query_request(query_information)
