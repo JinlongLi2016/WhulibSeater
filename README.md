@@ -3,39 +3,39 @@
 **Naughty** program to crack whulib seat reserving system.
 
 # Usage
-## 用法示例
+## 标准用法示例
 	from studenter import Student
 	from modeler import ModelHandler
 	
-	# 首先创建一个学生对象
+	# 创建一个学生对象 (处理和服务器交互)
 	s = Student(id, password)
-	s.set_reserve_information(res_information) #设置所要预定的位置信息.res_information是一个包含相关信息的字典
+	s.set_reserve_information(reserve_information) #设置所要预定的位置信息.reserve_information是一个含有与预定相关的信息的字典
 	
-	# 创建一个模型对象
+	# 创建一个处理模型的对象 (识别验证码)
 	model_handler = ModelHandler()
 
-	# 使用模型来识别验证码
-	# 首先导入模型 (假设在当前文件夹下 我们已经有一个训练好的模型,名字是default.pkl)
+	# 该对象需要导入模型 (假设在当前文件夹下 已经有一个训练好的模型,名字是default.pkl)
 	model_handler.load_model('default.pkl')
 	
-	has_login = False # 当前并未登陆
+	# 开始登陆网页
+	has_login = False 	# 当前还未登陆,设置为False
 	while not has_login:	
 		# 获得登陆验证码
-		capthca = s.get_login_captcha()	
+		login_capthca = s.get_login_captcha()	
 		# 识别验证码
-		verification_code = model_handler.predict(captcha)	
+		verification_code = model_handler.predict(login_captcha)	
 		# 登陆
 		has_login = s.login(verification_code)
 	
 	# 登陆成功 预定位置
-	has_reserved = False	# 当前并未预定成功
+	has_reserved = False	# 当前还未预定,设置为False
 	while not has_reserved:
-		reserve_captcha = s.get_serve_captcha()
+		reserve_captcha = s.get_reserve_captcha()
 		verification_code = model_handler.predict(reserve_captcha)
 			
 		has_reserved = s.reserve_seat(verification_code)
 
-	# 代码运行到这里, 我们应该已经预定了一个位置
+	# 代码运行至此, 我们应该已预定在reserve_information中设定的位置
 
 	
 	
