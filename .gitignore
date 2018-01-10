@@ -1,6 +1,7 @@
 #costum setting
 pd/
 train_pic/
+wrong_captcha_dir/
 pd.py
 # Byte-compiled / optimized / DLL files
 __pycache__/

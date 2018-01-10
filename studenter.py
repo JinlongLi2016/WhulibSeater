@@ -46,21 +46,27 @@ class Student():
     def collect_captchas(self, num = 2):
         """colloect num of captchas, and save them to disk with with labels"""
         if not os.path.isdir('train_pic'):
-            os.mkdir('trian_pic')
+            os.mkdir('train_pic')
+        if not os.path.isdir('wrong_captcha_dir'):
+            os.mkdir('wrong_captcha_dir')
         for n in range(num):
+            captcha_dir = 'train_pic'
+
             self._reserver = self.__reserver()
             captcha_array = self.get_login_captcha()
+
             plt.imsave('__t.jpg', captcha_array)
             img = Image.open('__t.jpg')
             img.show()
+
             verification_code = input("please input the code:")
 
             if not self.__check_verification_code(verification_code):
+                captcha_dir = 'wrong_captcha_dir'
                 print("The last verification is wrong")
-                continue
-            
+                
             fname = verification_code+'.jpg'
-            fname = os.path.join('train_pic', fname)
+            fname = os.path.join(captcha_dir, fname)
 
             plt.imsave(fname = fname, arr = captcha_array)
         os.remove('__t.jpg')
