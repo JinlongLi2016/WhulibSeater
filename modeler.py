@@ -107,7 +107,7 @@ class ModelHandler(object):
         """fit the model given feas, labels
 
         Now, models are mainly sklearn module and sklearn can handle relating
-        problems nicely dependently. Therefore, this function remains blanck.
+        problems nicely. Therefore, this function remains blanck.
         """
         pass
 
