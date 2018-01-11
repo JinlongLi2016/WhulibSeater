@@ -9,20 +9,62 @@ import sklearn
 
 
 class RawDataHandler(object):
-    """处理原始图片数据的类"""
+    """处理原始图片数据的类
+
+    This class converts raw images(file name or image array) to features
+    (with labels probably).One most important function is to split raw 
+    images and convert them to features, which are located in split_img_array
+    and _array_to_fea() respectively. If you want to choose a another way to
+    split images and convert them to features, you can directly change them
+    without changing codes that use them(You may need to retrain models).
+    
+    Protected attributes:
+        _m: a captcha's corresponding arrays height
+        _n: a captcha's corresponding arrays width
+
+    Protected methods:
+    - _array_to_fea: converting a character's corresponding array to features and 
+        return them(list).
+
+    Public methods:
+    - load_image: given a fname and read out return the image.
+    - img_to_feas: given an image fname or image array, convert it to
+        (features,labels) for former and features for latter.(This function 
+        have been implemented in a complicated way. As in my seting, to get
+        a new captcha(m*n*3,ndarray)'s feature, there is a simple method
+        captcha_to_feas.Maybe will change back in the future.)
+    - split_img_array: This funnction determins how to split original
+        image array(containing six characters) into six arrays(list) for 
+        latter training or prediction.
+    - _array_to_fea: This funnction determins how to extract features
+        from one character's numberic array.
+    - imgs_to_feas: this is a helper function to simply getting features and 
+        labels from a list of captcha image file names.
+    - captcha_to_feas: a helper function to convert capthca array(m*n*3) to
+        features.
+    """
+    
+
     def __init__(self):
         super(RawDataHandler, self).__init__()
         self._m = 70
         self._n = 27
-    def load_img(self, fname):
+    def load_image(self, fname):
+        """read and return fname image's array(m*n*3, uint8)"""
         return cv2.imread(fname)
 
     def split_img_array(self, an_img_array):
         """Split the raw image arrary to 6 character arrays.
 
-        How to cut the raw image into six part might significantly affects
+        How to cut the raw image into six parts might significantly affects
         classification accuracy.And Here is the way I cut.
         Now, I'll directly split the image into 6 parts.
+
+        Args:
+            an_img_array(m*n): a captcha's image corresponding numeric array.
+
+        Returns:
+            A list of features corresponding six characters.
         """
         # note: some differences exist between OpenCV shape and NumPy shape
         array_in_shape = cv2.resize(an_img_array, (162, 70), \
@@ -30,41 +72,71 @@ class RawDataHandler(object):
         arrays = [array_in_shape[:, st:st+27] for st in range(0, 162, 27)]
         return arrays
 
-    def array_to_fea(self, an_array):
+    def _array_to_fea(self, an_array):
         """Convert a character's coressponding numeric array(m*n) to features.
 
         Retional is simple. Give a m*n array,the function decides what
         form features shold be. Now, I'll directly flatten it.
+
+        Returns:
+            A feature (*,)(1 dimentianal) extracted from "an_array" using
+                methods defined in this function.
         """
         return an_array.ravel()
 
-    def img_to_feas(self, img_fname):
-        """Given an captcha image name, convert it into 6 features and labels.
+    def img_to_feas(self, img_fname_or_array):
+        """Given an captcha image name or array, convert it into 6 features
+        (and labels if it's an image).
 
-        Simplify the image to features pipline. 
+        Simplify the image file name or arrays to features pipline.
+
+        Args:
+            img_fname_or_array: a image file name(jpg) or an image 
+                array(ndarray) in m*n*3 shape and unit8 as their
+                data type.
+
+        Returns:
+            features, labels if img_fname_or_array;
+            features only if image_fname_or_array is an image's m*n* array
         """
-        # 1st extract labels from img_fname
-        if not os.path.isfile(img_fname):
-            raise ValueError("image fname is not valid")
         
-        _, labels = os.path.split(img_fname)
-        labels, _= os.path.splitext(labels)
-        if len(labels) != 6:
-            print("One Image with wrong fname found...")
-            return None, None
-        labels = np.array([ord(l) for l in labels]) # 1 dimentional label
-
+        if not os.path.isfile(img_fname_or_array) and not \
+            isinstance(img_fname_or_array, np.ndarray):
+            raise ValueError("img_fname_or array wrong type")
+        
+        # 1st extract labels(if image filename) from img_fname_or_array
+        if os.path.isfile(img_fname_or_array):
+            _, labels = os.path.split(img_fname_or_array)
+            labels, _= os.path.splitext(labels)
+            if len(labels) != 6:
+                print("One Image with wrong fname found...")
+                return None, None
+            labels = np.array([ord(l) for l in labels]) # 1 dimentional label
+            img_array = self.load_image(img_fname_or_array)[:, :, 0]
+        
+        elif isinstance(img_fname_or_array, np.ndarray):
+            img_array = img_fname_or_array[:, :, 0]
+        
         # 2nd get the features
-        img_array = self.load_img(img_fname)[:, :, 0] # 1-dimention is enough
         arrays = self.split_img_array(img_array)
-        feas_list = [self.array_to_fea(arr) for arr in arrays]
+        feas_list = [self._array_to_fea(arr) for arr in arrays]
 
-        return np.array(feas_list), labels
+        # choose to return something
+        if os.path.isfile(img_fname_or_array):
+            return np.array(feas_list), labels
+        else:
+            return np.array(feas_list)
         
     def imgs_to_feas(self, img_fnames_list):
         """Return feas, labels of a list of images.
 
         iterating to call img_to_feas()
+
+        Args:
+            img_fnames_list: a list of captcha images' names
+
+        Returns:
+            (features, labels)
         """
         feas_list = []
         labs_list = []
@@ -83,11 +155,18 @@ class RawDataHandler(object):
     def captcha_to_feas(self, cap):
         """Convert image to corresponding features using the way as trainnig.
 
-        Converting image(m*n array) to feas when loggin in & reserving seat.
+        Converting image(m*n*3 array) to feas when loggin in & reserving seat.
         As in these two cases, we'll meet and decode(recognize) the captcha.
+        
+        Args:
+            cap(ndarray)(70,160,3): The captcha retrieved via Student class.
+
+        Returns:
+            The captcha's feature, extraing from captcha array.
         """
+        cap = cap[:, :, 0]
         arrays = self.split_img_array(cap)
-        feas_list = [self.array_to_fea(arr) for arr in arrays]
+        feas_list = [self._array_to_fea(arr) for arr in arrays]
         return np.array(feas_list)
 
 
@@ -96,10 +175,19 @@ class ModelHandler(object):
 
     This class should be model-wise and should deal and only deal with
     general model functions.
+
+    Protected attributes:
+        _model: the model belongs to ModelHandler's instance.
+
+    Public methods:
+        load_model: load model from either model file name or
+            a model's instance, set it to _model.
+        save_model: save the given model or self._model to fname.
+        predict: using _model to predict given feature.
     """
     def __init__(self):
         super(ModelHandler, self).__init__()
-        self._clf = None
+        self._model = None
 
     def fit(self, *, feas, labs, save=False, name=None):
         """fit the model given feas, labels
@@ -112,7 +200,8 @@ class ModelHandler(object):
     def load_model(self, clf_or_fname):
         """load model from either classifer or model file's name
 
-        clf_or_fname can be name of clfer or model file name
+        Args:
+            clf_or_fname: can be name of clfer or model file name
         """
         if os.path.isfile(str(clf_or_fname)):
             _m = joblib.load(clf_or_fname)
@@ -121,6 +210,12 @@ class ModelHandler(object):
         self._model = _m
 
     def save_model(self, *, model=None, fname):
+        """save the given model or self._model to dist as fname.
+        
+        Args:
+            model:(optional) the model you want to save
+            fname: the saving file name.
+        """
         if model is None:
             self.save_as(fname)
         else:
@@ -134,7 +229,7 @@ class ModelHandler(object):
         joblib.dump(self._model, fname)
 
     def predict(self, fea):
-        """predict feas' correspoding labels"""
+        """predict feas' correspoding labels using self._model"""
         return self._model.predict(fea)
 
 
