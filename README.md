@@ -4,7 +4,7 @@
 # requirments
 **本小工程需要依赖库，为简化安装步骤，可以安装[Anonconda3.6](https://www.anaconda.com/download/)**
 
-** 此外本工程也依赖OpenCV库。该库安装起来比较麻烦，但是OPenCV库强大的功能能够简化后续开发。可以按照[此教程](https://www.solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/)安装，[从此](https://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv)下载相对应的编译好的文件.**
+**此外本工程也依赖OpenCV库。该库安装起来比较麻烦，但是OPenCV库强大的功能能够简化后续开发。可以按照[此教程](https://www.solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/)安装，[从此](https://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv)下载相对应的编译好的文件.**
 # Usage
 ## 1. 标准用法示例(预定位置)
 	from studenter import Student
