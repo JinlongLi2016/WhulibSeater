@@ -15,12 +15,42 @@ from modeler import RawDataHandler
 from modeler import ModelHandler
  
 class Student():
-    """This class represents a student.
+    """This class represents a student to interact with the webpage.
 
     The class represents a student whose main activities are to interacting
     with remote hosts.It contains information of the students, reserving
     seats' information and should never deal with the details of CAPTCHA part.
     All it needs to do is to use APIs of CAPTCHA(model) part.
+
+    Protected attributes:
+    - _id, _pd: id number and password used to log in the websit.
+    - _reserver: the object to process dirty interaction with the website,
+        Remain the same (meanning you cannot change it)
+        when call these methods: "get_login_captcha", "login"
+        "get_reserve_captcha" and "reserve_seat", which are activities
+        included in a session.Because it handles
+        the cookie needed in the seesion with the website automatically.
+        In fact, it's an "OpenerDirector" object from urllib.request.
+        More actions on cookie may be added in the future to support more
+        customized actions like containing two students(id, pd) in one Student
+        object and students(id, pd) can be distinguished via cookies.
+    - _reserving_information(dict):a dict containing relating information.
+
+    Public methods:
+    - get_login_captcha: return log in captcha (in array form) and set
+        self._reserver's cookie automaticallyy
+    - login: Student() log in using self._reserver, with the same cookie
+        setted in self._reserver when Student call get_login_captchain.This
+        is the default behaviour.
+    - get_reserve_captcha: return the captcha met when reserve a seat
+    - reserve_seat: reserve the seat.
+    - query: query available seat according to the given "query_information",
+        WARNING: to query avaliable seats needs to log in first, so you need to
+        log in first(or you the "_reserver" shouldn't been changed when you
+        after log in and before query, the same logic as actions on webpage).
+        However, cookies valid only in a certain time, meaning you may relog.
+
+    - collect_captchas: a function to collect captchas to train_pic(dir) 
     """
     def __init__(self, id, password):
         self._id = str(id)
@@ -28,11 +58,22 @@ class Student():
         self._reserver = self.__reserver() # whty type should () be?
 
     def login(self, verification_code):
+        """self._reserver log in with verification_code
+
+        Student needs to log in first before reserving seat.
+        In fact, this function just set cookie, which will be used later to
+        reserve seats later, to "_reserver"  
+        
+        Args:
+            verification_code:
+
+        Returns:
+            True if login successfully, False if failed
+        """
         req = self.__construct_login_request(verification_code)
         
         # put it in try/except statements in future to deal with exception.
         page = self._reserver.open(req)
-
 
         page_returned = page.read().decode('utf-8')
         print(page_returned)
@@ -43,8 +84,16 @@ class Student():
             print("passwrod right")
             return True
     
-    def collect_captchas(self, num = 2):
-        """colloect num of captchas, and save them to disk with with labels"""
+    def collect_captchas(self, num=2):
+        """Collect captcha images in an interacting way (for training model).
+
+
+        This function should only be called to retrieve captcha images and
+        save them to disk with their labels as file names.
+
+        Args:
+            num: the number of captchas to save
+        """
         if not os.path.isdir('train_pic'):
             os.mkdir('train_pic')
         if not os.path.isdir('wrong_captcha_dir'):
@@ -77,9 +126,27 @@ class Student():
         return flag
         
     def set_reserve_information(self, seat_information):
-        """set reserving seat's information (building, room, seat, time
+        """set reserving seat's information (building, room, seat, time)
 
         Some logic to process bad information may be added in the future.
+
+        Args:
+            seat_information: a dict containing relation information in form
+                seat_information = {
+                    'onDate':'2018-1-11',# which date 
+                    'building':'1',      # which building?  1:信图
+                    'room': '8',         # which room? 8: 二楼东
+                    'hour':'null',
+                    'startMin':'1305',   # 1305 for 21:45 
+                    'endMin':'1320',     # 1320 for 22:00 as 1320/60 = 22
+                    'power':'null',
+                    'window':'null',
+                    # which exact seat you want to reserve.This is the id in
+                    # the system which you can get via "query" method. 
+                    'seat': '5243'  
+                }
+                some params are optional and can be added later to 
+                _reserving_information
         """
         self._reserving_information = seat_information
     
@@ -118,6 +185,7 @@ class Student():
 
         return image_array
 
+    # This can be a decrator?
     def __construct_request(self, url, data=None):
         """Construct some types of requests: log, Reserving, request
         CollCAPT requests.
@@ -140,6 +208,7 @@ class Student():
         return req
     
     def __construct_login_request(self, verification_code):
+        """"""
         log_data = {
             'username':self._id,
             'password': self._pd,
@@ -150,11 +219,13 @@ class Student():
         return req
 
     def __construct_captcha_request(self):
+        """construct a request to get captcha"""
         cap_url = r'http://seat.lib.whu.edu.cn/simpleCaptcha/captcha'
         req = self.__construct_request(url = cap_url)
         return req
 
     def __construct_reserve_request(self, verification_code):
+        """construct a request to reserve seat using _reserving_information"""
         if not hasattr(self, "_reserving_information"):
             raise AttributeError("information of seat to be reserved lost")
         
@@ -197,10 +268,26 @@ class Student():
         # any better ways to check?
 
     def query(self, query_information):
-        """Query available seats
-
-        Query available seats using query_information.
-        Return {seat_num: system_seat_id}
+        """Query available seats using query_information.
+        
+        Args:
+            query_inforamtion: a dict containing query informationl
+                which takes the form:
+                    query_information = {
+                        'onDate':'2018-1-10',
+                        'building':'1',
+                        'room': '7',
+                        'hour':'null',
+                        'startMin':'1290',
+                        'endMin':'1320',
+                        'power':'null',
+                        'window':'null'
+                    }
+        
+        Returns:
+            Dictionay containng avaliable seats in form: {23: 5645}
+            23 is seat number which you can get from the table.
+            5645 is the seat's system id needed to reserve the seat.
         """
         req = self.__construct_query_request(query_information)
         response = self._reserver.open(req)
@@ -211,6 +298,7 @@ class Student():
         query_dict = {}
         if page['seatNum'] == 0:
             return {}
+        
         seat_str = page['seatStr']
         soup = BeautifulSoup(seat_str, 'lxml')
 
