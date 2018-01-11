@@ -92,7 +92,7 @@ class RawDataHandler(object):
 
 
 class ModelHandler(object):
-    """处理模型有关的内容 包括 训练 保存 载入 模型
+    """处理模型有关的内容 包括 保存 载入 模型
 
     This class should be model-wise and should deal and only deal with
     general model functions.
