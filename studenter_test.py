@@ -23,6 +23,7 @@ if __name__ == '__main__':
     s.set_reserve_information(seadata)
 
     cap = s.get_login_captcha()
+    print(type(cap), cap.shape)# cap: ndarray (70, 160, 4)
     plt.imshow(cap)
     plt.show()
     ver_code = input("input code")

@@ -77,7 +77,7 @@
 	model_handler.load_model('defaulf.pkl')
 
 # Appendix
-> *reserve_information 示例*
+> **reserve_information 示例**
 
 	seat_information = {
 		'onDate':'2018-1-11',# which date 
@@ -93,15 +93,15 @@
 		'seat': '5243'  
 	}
 
-> *query_information 示例*
+> **query_information 示例**
 
 	query_information = {
-	'onDate':'2018-1-10',
-	'building':'1',
-	'room': '7',
-	'hour':'null',
-	'startMin':'1290',
-	'endMin':'1320',
-	'power':'null',
-	'window':'null'
+		'onDate':'2018-1-10',
+		'building':'1',
+		'room': '7',
+		'hour':'null',
+		'startMin':'1290',
+		'endMin':'1320',
+		'power':'null',
+		'window':'null'
 	}
