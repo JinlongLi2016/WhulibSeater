@@ -75,3 +75,33 @@
 	
 	# 导入所保存的模型
 	model_handler.load_model('defaulf.pkl')
+
+# Appendix
+> *reserve_information 示例*
+
+	seat_information = {
+		'onDate':'2018-1-11',# which date 
+		'building':'1',      # which building?  1:信图
+		'room': '8',         # which room? 8: 二楼东
+		'hour':'null',
+		'startMin':'1305',   # 1305 for 21:45 
+		'endMin':'1320',     # 1320 for 22:00 as 1320/60 = 22
+		'power':'null',
+		'window':'null',
+		# which exact seat you want to reserve.This is the id in
+		# the system which you can get via "query" method. 
+		'seat': '5243'  
+	}
+
+> *query_information 示例*
+
+	query_information = {
+	'onDate':'2018-1-10',
+	'building':'1',
+	'room': '7',
+	'hour':'null',
+	'startMin':'1290',
+	'endMin':'1320',
+	'power':'null',
+	'window':'null'
+	}
