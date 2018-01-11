@@ -29,8 +29,14 @@ class RawDataHandler(object):
     Public methods:
     - load_image: given a fname and read out return the image.
     - img_to_feas: given an image fname or image array, convert it to
-        (features,labels) for former and features for latter.(This function 
-        have been implemented in a complicated way. As in my seting, to get
+        (features,labels) for former and features for latter.① When training a
+        model, it receives an image's file name, so it will return image's 
+        features and labels, which is the image's name(such as:"s25n4o.jpg").
+        ② When we log in, we need the convert raw image's numeric array to
+        features for prediction. This time, it receives an array(ndarray), 
+        and convert it to features(with no labels).
+        (This function 
+        have been implemented in a complicated way. As in my setting, to get
         a new captcha(m*n*3,ndarray)'s feature, there is a simple method
         captcha_to_feas.Maybe will change back in the future.)
     - split_img_array: This funnction determins how to split original
@@ -85,10 +91,15 @@ class RawDataHandler(object):
         return an_array.ravel()
 
     def img_to_feas(self, img_fname_or_array):
-        """Given an captcha image name or array, convert it into 6 features
+        """Given a captcha image name or array, convert it into 6 features
         (and labels if it's an image).
 
-        Simplify the image file name or arrays to features pipline.
+        This function can do two things:
+            1. given a captcha's file name, convert it into 6 features,labels
+            (This case occurs when we train a model)
+            or 2. given an array(ndarray), convert it into 6 features.
+            (This case occurs when we log in.We need to convert it into
+            features for models to predict)
 
         Args:
             img_fname_or_array: a image file name(jpg) or an image 
@@ -98,14 +109,11 @@ class RawDataHandler(object):
         Returns:
             features, labels if img_fname_or_array;
             features only if image_fname_or_array is an image's m*n* array
-        """
-        
-        if not os.path.isfile(img_fname_or_array) \
-            and not isinstance(img_fname_or_array, np.ndarray):
-            raise ValueError("img_fname_or array wrong type")
-        
+        """ 
         # 1st extract labels(if image filename) from img_fname_or_array
-        if os.path.isfile(img_fname_or_array):
+        if isinstance(img_fname_or_array, np.ndarray):
+            img_array = img_fname_or_array[:, :, 0]
+        elif os.path.isfile(img_fname_or_array):
             _, labels = os.path.split(img_fname_or_array)
             labels, _= os.path.splitext(labels)
             if len(labels) != 6:
@@ -113,9 +121,10 @@ class RawDataHandler(object):
                 return None, None
             labels = np.array([ord(l) for l in labels]) # 1 dimentional label
             img_array = self.load_image(img_fname_or_array)[:, :, 0]
-        
-        elif isinstance(img_fname_or_array, np.ndarray):
-            img_array = img_fname_or_array[:, :, 0]
+        else:
+            # raise Error
+            raise ValueError("img_fname_or_array should be np.ndarray or a \
+                image file name")
         
         # 2nd get the features
         arrays = self.split_img_array(img_array)
