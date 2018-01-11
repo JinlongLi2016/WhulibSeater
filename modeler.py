@@ -19,8 +19,8 @@ class RawDataHandler(object):
     without changing codes that use them(You may need to retrain models).
     
     Protected attributes:
-        _m: a captcha's corresponding arrays height
-        _n: a captcha's corresponding arrays width
+        _m: a character's  array's height
+        _n: a character's  array's width
 
     Protected methods:
     - _array_to_fea: converting a character's corresponding array to features and 
