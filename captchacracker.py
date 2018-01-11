@@ -4,6 +4,9 @@
 # models that predict captcha's lables.It's jobs include trainng and saving
 # models for other module to predict.
 
+from sklearn import svm
+from sklearn.externals import joblib
+
 from modeler import RawDataHandler
 
 
@@ -16,5 +19,8 @@ class CaptchaCracker(RawDataHandler):
 if __name__ == '__main__':
 	cracker = CaptchaCracker()
 	# given a list of names, conve
-	feas, labels = cracker.imgs_to_feas(['s25n4o.jpg', "wrong_captcha_dir/0.jpg"])
-	print(feas.shape)
+	feas, labels = cracker.imgs_to_feas(['s25n4o.jpg', "wrong_captcha_dir/0.jpg", "wrong_captcha_dir/gbw59d.jpg"])
+	print(labels)
+	clf = svm.SVC()
+	clf.fit(X = feas, y = labels)
+	print(clf.predict(feas))
