@@ -3,7 +3,7 @@
 **Naughty** program to crack whulib seat reserving system.
 
 # Usage
-## 标准用法示例
+## 1. 标准用法示例(预定位置)
 	from studenter import Student
 	from modeler import ModelHandler
 	
@@ -37,8 +37,37 @@
 
 	# 代码运行至此, 我们应该已预定在reserve_information中设定的座位
 
+## 2.训练、保存、导入模型示例
+### 2.1 训练、保存模型及用于预测
+	from modeler import ModelHandler, RawDataHandler
 	
+	# 构造一个数据处理和模型处理的对象
+	data_handler = RawDataHandler()
+	model_handler = ModelHandler()
+	# image_list是 图片名的列表
+	image_list = ['s25n4o.jpg']
 	
+	# 使用imgs_to_feas方法把图片转换为 特征和标签
+	featuress, labels = data_handler.imgs_to_feas(image_list)
+	
+	# 构造一个模型并训练
+	from sklearn import svm
+	clf = svm.SVC()		#构造模型
+	clf.fit(X = features, y = labels)	#训练
+	
+	# 可以保存模型或者将之用于预测
+	model_handler.save_model(model = clf, fname = 'default.pkl')#保存
+	pred = model_handler.predict(features) # 对 (特征)features 进行预测
+	print("The predictions are: ", pred)
+
+### 2.2 导入模型
+	from modeler import ModelHandler
+	
+	# 构造一个数据处理和模型处理的对象
+	model_handler = ModelHandler()
+	
+	# 导入所保存的模型
+	model_handler.load_model('defaulf.pkl')
 	
 
 
