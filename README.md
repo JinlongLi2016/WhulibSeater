@@ -8,13 +8,14 @@
 # Usage
 ## 1. 标准用法示例(预定位置)
 	from studenter import Student
-	from modeler import ModelHandler
+	from modeler import ModelHandler, RawDataHandler
 	
 	# 创建一个学生对象 (处理和网页交互)
 	s = Student(id, password)
 	s.set_reserve_information(reserve_information) #设置所要预定的位置信息.reserve_information是一个含有与预定相关的信息的字典
 	
-	# 创建一个处理模型的对象 (识别验证码)
+	# 创建一个处理数据对象和一个处理模型的对象(识别验证码)
+	data_handler = RawDataHandler()
 	model_handler = ModelHandler()
 
 	# 该对象需要导入模型 (假设在当前文件夹下 已经有一个训练好的模型,名字是default.pkl)
@@ -24,7 +25,9 @@
 	has_login = False 	# 当前还未登陆,设置为False
 	while not has_login:	
 		# 获得登陆验证码
-		login_capthca = s.get_login_captcha()	
+		login_capthca = s.get_login_captcha()
+		# 将login_captcha转换为模型可以处理的特征
+		feature = data_handler.captcha_to_feas(login_capthca)
 		# 识别验证码
 		verification_code = model_handler.predict(login_captcha)	
 		# 登陆
@@ -35,7 +38,8 @@
 	while not has_reserved:
 		reserve_captcha = s.get_reserve_captcha()
 		verification_code = model_handler.predict(reserve_captcha)
-			
+		feature = data_handler.captcha_to_feas(login_capthca)	
+
 		has_reserved = s.reserve_seat(verification_code)
 
 	# 代码运行至此, 我们应该已预定在reserve_information中设定的座位
