@@ -70,8 +70,11 @@ class RawDataHandler(object):
         labs_list = []
         for img_fname in img_fnames_list:
             ft, lt = self.img_to_feas(img_fname)
+            if ft is None and lt is None:
+                continue
             feas_list.append(ft)
             labs_list.append(lt)
+        
         return np.vstack(feas_list), np.concatenate(labs_list)
         
     def check_img_fname(self, img_fname):
