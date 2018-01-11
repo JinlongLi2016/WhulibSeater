@@ -28,7 +28,7 @@ class Student():
         Remain the same (meanning you cannot change it)
         when call these methods: "get_login_captcha", "login"
         "get_reserve_captcha" and "reserve_seat", which are activities
-        included in a session.Because it handles
+        related in one session.Because it handles
         the cookie needed in the seesion with the website automatically.
         In fact, it's an "OpenerDirector" object from urllib.request.
         More actions on cookie may be added in the future to support more
