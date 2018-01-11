@@ -100,8 +100,8 @@ class RawDataHandler(object):
             features only if image_fname_or_array is an image's m*n* array
         """
         
-        if not os.path.isfile(img_fname_or_array) and not \
-            isinstance(img_fname_or_array, np.ndarray):
+        if not os.path.isfile(img_fname_or_array) \
+            and not isinstance(img_fname_or_array, np.ndarray):
             raise ValueError("img_fname_or array wrong type")
         
         # 1st extract labels(if image filename) from img_fname_or_array
