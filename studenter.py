@@ -76,9 +76,12 @@ class Student():
         page = self._reserver.open(req)
 
         page_returned = page.read().decode('utf-8')
-        print(page_returned)
-        if "密码与图书馆借书系统密码一致" in page_returned:
+        # print(page_returned)
+        if "登录失败: 用户名或密码不正确" in page_returned:
             print("password error")
+            return False
+        elif "验证码错误"in page_returned:
+            print("验证码错误")
             return False
         else:
             print("passwrod right")
