@@ -90,7 +90,8 @@
 		'window':'null',
 		# which exact seat you want to reserve.This is the id in
 		# the system which you can get via "query" method. 
-		'seat': '5243'  
+		'seat': '5243'  #这个数据在测试的时候可以减去30(随便说的)以内的任何一个数
+				#系统也会有对应的位置
 	}
 
 > **query_information 示例**
