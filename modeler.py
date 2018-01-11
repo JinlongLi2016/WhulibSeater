@@ -100,11 +100,6 @@ class ModelHandler(object):
     def __init__(self):
         super(ModelHandler, self).__init__()
         self._clf = None
-    
-    # attribute's getter function
-    @property
-    def svm(self):
-        return sklearn.svm
 
     def fit(self, *, feas, labs, save=False, name=None):
         """fit the model given feas, labels
@@ -125,6 +120,12 @@ class ModelHandler(object):
             _m = clf_or_fname
         self._model = _m
 
+    def save_model(self, *, model=None, fname):
+        if model is None:
+            self.save_as(fname)
+        else:
+            joblib.dump(model, fname)
+    
     def load_data(self, *, feas, labs):
         raise NotImplemented()
 
@@ -136,10 +137,11 @@ class ModelHandler(object):
         """predict feas' correspoding labels"""
         return self._model.predict(fea)
 
+
 if __name__ == '__main__':
     # below is how modeler works
     dher = RawDataHandler()
-    feas, labels = dher.imgs_to_feas(['s25n4o.jpg'])
+    feas, labels = dher.imgs_to_feas(['s25n4o.jpg', "wrong_captcha_dir/0.jpg", "wrong_captcha_dir/gbw59d.jpg"])
 
     # create a ModelHandler instance
     mh = ModelHandler()
