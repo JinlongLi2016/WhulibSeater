@@ -7,6 +7,7 @@
 **此外本工程也依赖OpenCV库。该库安装起来比较麻烦，但是其强大的功能能够简化后续开发。Windows用户可以按照[此教程](https://www.solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/)安装，[从此](https://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv)下载相对应的编译好的文件.**
 # Usage
 ## 1. 标准用法示例(预定位置)
+	# standard_usage.py
 	from studenter import Student
 	from modeler import ModelHandler, RawDataHandler
 	
