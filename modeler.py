@@ -48,9 +48,10 @@ class RawDataHandler(object):
         labels from a list of captcha image file names.
     - captcha_to_feas: a helper function to convert capthca array(m*n*3) to
         features.
+    - get_features_labels_from_directory: a helper function to convert a
+        directory of images to (features, labels)
     """
     
-
     def __init__(self):
         super(RawDataHandler, self).__init__()
         self._m = 70
@@ -178,6 +179,26 @@ class RawDataHandler(object):
         feas_list = [self._array_to_fea(arr) for arr in arrays]
         return np.array(feas_list)
 
+    def get_features_labels_from_directory(self, dir_name):
+        """To get image features and labels from the given directory dir_name.
+
+        Args:
+            dir_name: the directory where images locate in.
+
+        Returns:
+            (features, labels)
+        """
+        if not os.path.isdir(dir_name):
+            raise ValueError(dir_name, " seems not be a directory")
+
+        image_names_list = []
+        for _, _, image_names in os.walk(dir_name):
+            image_names_list += image_names
+        
+        image_names_list = [os.path.join(dir_name, t) \
+            for t in image_names_list]
+        print(image_names_list)
+        return self.imgs_to_feas(image_names_list)
 
 class ModelHandler(object):
     """处理模型有关的内容 包括 保存 载入 模型
