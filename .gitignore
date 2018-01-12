@@ -2,6 +2,7 @@
 pd/
 train_pic/
 wrong_captcha_dir/
+my_exp/
 pd.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
