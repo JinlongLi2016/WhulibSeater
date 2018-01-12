@@ -1,8 +1,7 @@
 # coding: utf-8
 # captchacracker.py
 # This script is aimed to and only aimed to deal with stuff relating to the
-# models that predict captcha's lables.It's jobs include trainng and saving
-# models for other module to predict.
+# split images into separate parts and extract features from each part.
 
 from sklearn import svm
 from sklearn.externals import joblib
