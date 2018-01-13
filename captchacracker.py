@@ -43,6 +43,10 @@ class CaptchaCracker():
             A feature (*,)(1 dimentianal) extracted from "an_array" using
                 methods defined in this function.
         """
+        # 归一化 [-1, 1)
+        an_array = an_array.astype('float16')
+        an_array = (an_array - 128) / 128
+        
         return an_array.ravel()
 
 if __name__ == '__main__':
