@@ -1,11 +1,12 @@
 #coding: utf-8
 
 from sklearn.externals import joblib
+from sklearn.model_selection import train_test_split as sk_train_test_split
 from sklearn import svm
 import cv2
 import numpy as np
 import os
-import sklearn
+
 
 from captchacracker import CaptchaCracker
 
@@ -199,6 +200,22 @@ class RawDataHandler(CaptchaCracker):
             for t in image_names_list]
         print(image_names_list)
         return self.imgs_to_feas(image_names_list)
+
+    def train_test_split(self, *arrays, train_size = 0.8, test_size = 0.2):
+        """Split arrays or matrices into random train and test subsets
+        
+        http://scikit-learn.org/stable/modules/generated/\
+            sklearn.model_selection.train_test_split.html
+        Args:
+            *arrays: sequence of indexables with same length / shape[0]
+                Allowed inputs are lists, numpy arrays, scipy-sparse
+                matrices or pandas dataframes.
+            test_size: in what proportion you want the test sets be
+            train_size: in what proportion you want the train sets be
+        """
+
+        return sk_train_test_split(*arrays, train_size = 0.8, test_size = 0.2)
+
 
 class ModelHandler(object):
     """处理模型有关的内容 包括 保存 载入 模型
