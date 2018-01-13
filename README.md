@@ -20,7 +20,7 @@
 	model_handler = ModelHandler()
 
 	# 该对象需要导入模型 (假设在当前文件夹下 已经有一个训练好的模型,名字是default.pkl)
-	model_handler.load_model('default.pkl')
+	model_handler.load_model('default.pkl', data_handler = data_handler) # data_handler传入,设置图片处理相关参数
 	
 	# 开始登陆网页
 	has_login = False 	# 当前还未登陆,设置为False
@@ -28,7 +28,7 @@
 		# 获得登陆验证码
 		login_capthca = s.get_login_captcha()
 		# 将login_captcha转换为模型可以处理的特征
-		feature = data_handler.captcha_to_feas(login_capthca)
+		feature = data_handler.captcha_to_feas(login_capthca)# 根据前面设置参数转换验证码
 		# 识别验证码
 		verification_code = model_handler.predict(login_captcha)	
 		# 登陆
@@ -38,9 +38,8 @@
 	has_reserved = False	# 当前还未预定,设置为False
 	while not has_reserved:
 		reserve_captcha = s.get_reserve_captcha()
+		feature = data_handler.captcha_to_feas(reserv_captcha)
 		verification_code = model_handler.predict(reserve_captcha)
-		feature = data_handler.captcha_to_feas(login_capthca)	
-
 		has_reserved = s.reserve_seat(verification_code)
 
 	# 代码运行至此, 我们应该已预定在reserve_information中设定的座位
@@ -64,18 +63,19 @@
 	clf.fit(X = features, y = labels)	#训练
 	
 	# 可以保存模型或者将之用于预测
-	model_handler.save_model(model = clf, fname = 'default.pkl')#保存
+	model_handler.save_model(model = clf, fname = 'default.pkl', scaler = data_handler.Scaler)#保存
 	pred = model_handler.predict(features) # 对 (特征)features 进行预测
 	print("The predictions are: ", pred)
 
 ### 2.2 导入模型
-	from modeler import ModelHandler
+	from modeler import ModelHandler, RawDataHandler
 	
 	# 构造一个数据处理和模型处理的对象
 	model_handler = ModelHandler()
+	data_handler = RawDataHandler()
 	
 	# 导入所保存的模型
-	model_handler.load_model('defaulf.pkl')
+	model_handler.load_model('defaulf.pkl', data_handler = data_handler)
 
 # Appendix
 > **reserve_information 示例**

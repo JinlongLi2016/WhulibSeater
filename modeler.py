@@ -48,7 +48,8 @@ class RawDataHandler(CaptchaCracker):
     - _array_to_fea: This funnction determins how to extract features
         from one character's numberic array.(removed to (class)CaptchaCracker)
     - imgs_to_feas: this is a helper function to simply getting features and 
-        labels from a list of captcha image file names.
+        labels from a list of captcha image file names.(usually used when 
+        training)
     - captcha_to_feas: a helper function to convert capthca array(m*n*3) to
         features.
     - get_features_labels_from_directory: a helper function to convert a
@@ -61,7 +62,7 @@ class RawDataHandler(CaptchaCracker):
         super(RawDataHandler, self).__init__()
         self._m = 70
         self._n = 27
-        self.Scaler = StandardScaler
+        self.Scaler = StandardScaler()
     
     def load_image(self, fname):
         """read and return fname image's array(m*n*3, uint8)"""
@@ -97,14 +98,11 @@ class RawDataHandler(CaptchaCracker):
 
     def img_to_feas(self, img_fname_or_array):
         """Given a captcha image name or array, convert it into 6 features
-        (and labels if it's an image).
+        (and labels if it's an image).(try not pass array as there is a
+        better way to do this: using self.captcha_to_feas)
 
-        This function can do two things:
-            1. given a captcha's file name, convert it into 6 features,labels
-            (This case occurs when we train a model)
-            or 2. given an array(ndarray), convert it into 6 features.
-            (This case occurs when we log in.We need to convert it into
-            features for models to predict)
+        given a captcha's file name, convert it into 6 features,labels
+        (This case occurs when we train a model)
 
         Args:
             img_fname_or_array: a image file name(jpg) or an image 
@@ -141,8 +139,8 @@ class RawDataHandler(CaptchaCracker):
         else:
             return np.array(feas_list)
         
-    def imgs_to_feas(self, img_fnames_list):
-        """Return feas, labels of a list of images.
+    def imgs_to_feas(self, img_fnames_list, *, fit_scaler = True):
+        """Return feas, labels of a list of images.(usually when training)
 
         iterating to call img_to_feas()
 
@@ -161,7 +159,14 @@ class RawDataHandler(CaptchaCracker):
             feas_list.append(ft)
             labs_list.append(lt)
         
-        return np.vstack(feas_list), np.concatenate(labs_list)
+        feas, labs = np.vstack(feas_list), np.concatenate(labs_list)
+        
+        if fit_scaler:
+            self.Scaler.fit_transform(feas)
+        else:
+            feas = self.Scaler.transform(feas)
+        
+        return feas, labs
         
     def check_img_fname(self, img_fname):
         pass
@@ -171,6 +176,7 @@ class RawDataHandler(CaptchaCracker):
 
         Converting image(m*n*3 array) to feas when loggin in & reserving seat.
         As in these two cases, we'll meet and decode(recognize) the captcha.
+        The converting way are stored in self.Scaler
         
         Args:
             cap(ndarray)(70,160,3): The captcha retrieved via Student class.
@@ -181,9 +187,13 @@ class RawDataHandler(CaptchaCracker):
         cap = cap[:, :, 0]
         arrays = self.split_img_array(cap)
         feas_list = [self._array_to_fea(arr) for arr in arrays]
-        return np.array(feas_list)
+        feas = np.array(feas_list)
 
-    def get_features_labels_from_directory(self, dir_name):
+        feas = self.Scaler.transform(feas)
+        
+        return feas
+
+    def get_features_labels_from_directory(self, dir_name, *, fit_scaler = True):
         """To get image features and labels from the given directory dir_name.
 
         Args:
@@ -202,7 +212,7 @@ class RawDataHandler(CaptchaCracker):
         image_names_list = [os.path.join(dir_name, t) \
             for t in image_names_list]
         print(image_names_list)
-        return self.imgs_to_feas(image_names_list)
+        return self.imgs_to_feas(image_names_list, fit_scaler = fit_scaler)
 
     def train_test_split(self, *arrays, train_size = 0.8, test_size = 0.2):
         """Split arrays or matrices into random train and test subsets
@@ -247,7 +257,7 @@ class ModelHandler(object):
         """
         pass
 
-    def load_model(self, clf_or_fname):
+    def load_model(self, clf_or_fname, data_handler = None):
         """load model from either classifer or model file's name
 
         Args:
@@ -255,11 +265,14 @@ class ModelHandler(object):
         """
         if os.path.isfile(str(clf_or_fname)):
             _m = joblib.load(clf_or_fname)
+            if data_handler is None:
+                raise ValueError("'data_handler' not passed in.")
+            data_handler.Scaler = _m._scaler
         else:
             _m = clf_or_fname
         self._model = _m
 
-    def save_model(self, *, model=None, fname):
+    def save_model(self, *, model=None, fname, scaler=None):
         """save the given model or self._model to dist as fname.
         
         Args:
@@ -267,8 +280,10 @@ class ModelHandler(object):
             fname: the saving file name.
         """
         if model is None:
+            setattr(self._model, '_scaler', self.Scaler)
             self.save_as(fname)
         else:
+            setattr(model, '_scaler', scaler)
             joblib.dump(model, fname)
     
     def load_data(self, *, feas, labs):
