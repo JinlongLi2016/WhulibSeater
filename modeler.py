@@ -7,8 +7,10 @@ import numpy as np
 import os
 import sklearn
 
+from captchacracker import CaptchaCracker
 
-class RawDataHandler(object):
+
+class RawDataHandler(CaptchaCracker):
     """处理原始图片数据的类
 
     This class converts raw images(file name or image array) to features
@@ -56,6 +58,7 @@ class RawDataHandler(object):
         super(RawDataHandler, self).__init__()
         self._m = 70
         self._n = 27
+        
     def load_image(self, fname):
         """read and return fname image's array(m*n*3, uint8)"""
         return cv2.imread(fname)
@@ -74,22 +77,19 @@ class RawDataHandler(object):
             A list of features corresponding six characters.
         """
         # note: some differences exist between OpenCV shape and NumPy shape
-        array_in_shape = cv2.resize(an_img_array, (162, 70), \
-            interpolation = cv2.INTER_CUBIC)
-        arrays = [array_in_shape[:, st:st+27] for st in range(0, 162, 27)]
-        return arrays
+        return super().split_img_array(an_img_array)
 
     def _array_to_fea(self, an_array):
         """Convert a character's coressponding numeric array(m*n) to features.
 
         Retional is simple. Give a m*n array,the function decides what
-        form features shold be. Now, I'll directly flatten it.
+        form features shold be.
 
         Returns:
             A feature (*,)(1 dimentianal) extracted from "an_array" using
                 methods defined in this function.
         """
-        return an_array.ravel()
+        return super()._array_to_fea(an_array)
 
     def img_to_feas(self, img_fname_or_array):
         """Given a captcha image name or array, convert it into 6 features
