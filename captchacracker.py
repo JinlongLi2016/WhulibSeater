@@ -4,9 +4,10 @@
 # splitting images into separate parts and extracting features from each part.
 
 import cv2
+import numpy as np
+from skimage.feature import hog 
 from sklearn import svm
 from sklearn.externals import joblib
-
 
 class CaptchaCracker():
     """docstring for CaptchaCracker"""
@@ -31,6 +32,8 @@ class CaptchaCracker():
         array_in_shape = cv2.resize(an_img_array, (162, 70), \
             interpolation = cv2.INTER_CUBIC)
         arrays = [array_in_shape[:, st:st+27] for st in range(0, 162, 27)]
+        
+
         return arrays
 
     def _array_to_fea(self, an_array):
@@ -43,11 +46,46 @@ class CaptchaCracker():
             A feature (*,)(1 dimentianal) extracted from "an_array" using
                 methods defined in this function.
         """
-        # 归一化 [-1, 1)
-        an_array = an_array.astype('float16')
-        an_array = (an_array - 128) / 128
+        # 1 提取直方图特征
+        hist_features = self.get_color_hist(an_array, nbins = 4,\
+            bins_range = (0, 255))
+
+        # 2 提取 HOG 特征
+        hog_features = self.get_hog_features(an_array) # tune params?
+
+        # 3展开得到特征
+        raw_features = an_array.ravel()
+
+
+        return np.concatenate((hist_features, hog_features, raw_features))
+
+    ##########################################################################
+    ############ Below is functions that extracts features ###################
+    
+    # Define a function to compute color histogram features  
+    def get_color_hist(self, an_array, *, nbins, bins_range):
+        # Compute the histogram of the color channels separately
+        hist_features = np.histogram(an_array, bins=nbins, range=bins_range)[0]
+        hist_features = hist_features.astype('float32')
         
-        return an_array.ravel()
+        return hist_features
+
+    # Define a function to return HOG features (and visualization, maybe)
+    def get_hog_features(self, an_array, orient = 9, pix_per_cell = 3,
+        cell_per_block = 3, vis=False, feature_vec=True):
+        if vis == True:
+            # Use skimage.hog() to get both features and a visualization
+            features, hog_image = hog(an_array, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell),
+                                      cells_per_block=(cell_per_block, cell_per_block), transform_sqrt=False, 
+                                      visualise=vis, feature_vector=feature_vec)
+            return features, hog_image
+        else:      
+            # Use skimage.hog() to get features only
+            features = hog(an_array, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell),
+                           cells_per_block=(cell_per_block, cell_per_block), transform_sqrt=False, 
+                           visualise=vis, feature_vector=feature_vec)
+            return features
+
 
 if __name__ == '__main__':
     cracker = CaptchaCracker()
