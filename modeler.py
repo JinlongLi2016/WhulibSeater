@@ -7,7 +7,6 @@ import cv2
 import numpy as np
 import os
 
-
 from captchacracker import CaptchaCracker
 
 
@@ -44,15 +43,17 @@ class RawDataHandler(CaptchaCracker):
         captcha_to_feas.Maybe will change back in the future.)
     - split_img_array: This funnction determins how to split original
         image array(containing six characters) into six arrays(list) for 
-        latter training or prediction.
+        latter training or prediction.(removed to (class)CaptchaCracker)
     - _array_to_fea: This funnction determins how to extract features
-        from one character's numberic array.
+        from one character's numberic array.(removed to (class)CaptchaCracker)
     - imgs_to_feas: this is a helper function to simply getting features and 
         labels from a list of captcha image file names.
     - captcha_to_feas: a helper function to convert capthca array(m*n*3) to
         features.
     - get_features_labels_from_directory: a helper function to convert a
         directory of images to (features, labels)
+    - train_test_split: Split arrays or matrices into random train and 
+        test subsets
     """
     
     def __init__(self):
