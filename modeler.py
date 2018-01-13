@@ -2,6 +2,7 @@
 
 from sklearn.externals import joblib
 from sklearn.model_selection import train_test_split as sk_train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn import svm
 import cv2
 import numpy as np
@@ -60,7 +61,8 @@ class RawDataHandler(CaptchaCracker):
         super(RawDataHandler, self).__init__()
         self._m = 70
         self._n = 27
-        
+        self.Scaler = StandardScaler
+    
     def load_image(self, fname):
         """read and return fname image's array(m*n*3, uint8)"""
         return cv2.imread(fname)
