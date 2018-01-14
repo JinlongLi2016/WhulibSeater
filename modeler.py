@@ -102,7 +102,9 @@ class RawDataHandler(CaptchaCracker):
         better way to do this: using self.captcha_to_feas)
 
         given a captcha's file name, convert it into 6 features,labels
-        (This case occurs when we train a model)
+        (This case occurs when we train a model)[Warning: Any changes here
+        need to be implemented in captcha_to_feas() since the both convert
+        images to features, and the way need to be consistent]
 
         Args:
             img_fname_or_array: a image file name(jpg) or an image 
@@ -129,8 +131,13 @@ class RawDataHandler(CaptchaCracker):
             raise ValueError("img_fname_or_array should be np.ndarray or a \
                 image file name")
         
+        img_array = self.strip_array(img_array)   # strip backgroud pixels around
         # 2nd get the features
         arrays = self.split_img_array(img_array)
+        # strip background pixesl around character and resize it to (28*28)
+        arrays = [self.strip_array(arr, resize_shape = (28, 28)) \
+                  for arr in arrays] 
+        
         feas_list = [self._array_to_fea(arr) for arr in arrays]
 
         # choose to return something
@@ -185,7 +192,15 @@ class RawDataHandler(CaptchaCracker):
             The captcha's feature, extraing from captcha array.
         """
         cap = cap[:, :, 0]
+
+        # be consistent with the converting way in img_to_feas()
+        cap = self.strip_array(cap)
+
         arrays = self.split_img_array(cap)
+        # be consistent with the converting way in img_to_feas()
+        arrays = [self.strip_array(arr, resize_shape=(28,28))\
+                  for arr in arrays]
+
         feas_list = [self._array_to_fea(arr) for arr in arrays]
         feas = np.array(feas_list)
 
@@ -214,6 +229,61 @@ class RawDataHandler(CaptchaCracker):
         print(image_names_list)
         return self.imgs_to_feas(image_names_list, fit_scaler = fit_scaler)
 
+    def strip_array(self, an_array, threshold = 180, resize_shape = None):
+        """Strip pixels above threshold around center balck parts
+
+        Args:
+            an_array: the original array that you want strip pixels on.
+            threshold: pixel's tensity above this is regarded as background.
+                This is an important parameter, be careful(背景白).
+            resize_shape(tuple): If you need to resize the extracted array
+
+        Returns:
+            An array cutted from the center of original array (an resized if
+            resize_shape paramter is passed)
+        """
+        m, n = an_array.shape
+
+        x_start = -1
+        for i in range(m):
+            for j in range(n):
+                if an_array[i][j] < threshold:
+                    x_start = i
+                    break 
+            if x_start > -1:
+                break
+        x_end = m
+        for i in range(m-1, -1, -1):
+            for j in range(n):
+                if an_array[i][j] < threshold:
+                    x_end = i+1 
+            if x_end < m:
+                break
+        y_start = -1
+        for j in range(n):
+            for i in range(m):
+                if an_array[i][j] < threshold:
+                    y_start = j
+            if y_start > -1:
+                break
+        y_end = n
+        for j in range(n-1, -1, -1):
+            for i in range(m):
+                if an_array[i][j] < threshold:
+                    y_end = j+1
+            if y_end < n:
+                break
+
+        print(x_start, x_end, y_start, y_end)
+        info_arr = an_array[x_start:x_end, y_start:y_end]
+        if resize_shape is not None:
+            info_arr = cv2.resize(info_arr, resize_shape, \
+                        interpolation = cv2.INTER_CUBIC)
+        
+        if x_end - x_start < 10 or y_end - y_start < 10:
+            print("something might be wrong in RawDataHandler.strip_array()")
+        return info_arr
+    
     def train_test_split(self, *arrays, train_size = 0.8, test_size = 0.2):
         """Split arrays or matrices into random train and test subsets
         
@@ -263,6 +333,7 @@ class ModelHandler(object):
         Args:
             clf_or_fname: can be name of clfer or model file name
         """
+        # what if the given fname doesn't exit?
         if os.path.isfile(str(clf_or_fname)):
             _m = joblib.load(clf_or_fname)
             if data_handler is None:
