@@ -71,8 +71,8 @@ class CaptchaCracker():
         return hist_features
 
     # Define a function to return HOG features (and visualization, maybe)
-    def get_hog_features(self, an_array, orient = 9, pix_per_cell = 3,
-        cell_per_block = 3, vis=False, feature_vec=True):
+    def get_hog_features(self, an_array, orient = 9, pix_per_cell = 7,
+        cell_per_block = 2, vis=False, feature_vec=True):
         if vis == True:
             # Use skimage.hog() to get both features and a visualization
             features, hog_image = hog(an_array, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell),
