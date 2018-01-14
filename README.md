@@ -20,7 +20,7 @@
 	model_handler = ModelHandler()
 
 	# 该对象需要导入模型 (假设在当前文件夹下 已经有一个训练好的模型,名字是default.pkl)
-	model_handler.load_model('default.pkl', data_handler = data_handler) # data_handler传入,设置图片处理相关参数
+	model_handler.load_model('default.pkl', data_handler = data_handler) # data_handler传入,获得图片到特征的一些参数
 	
 	# 开始登陆网页
 	has_login = False 	# 当前还未登陆,设置为False
@@ -28,7 +28,7 @@
 		# 获得登陆验证码
 		login_capthca = s.get_login_captcha()
 		# 将login_captcha转换为模型可以处理的特征
-		feature = data_handler.captcha_to_feas(login_capthca)# 根据前面设置参数转换验证码
+		feature = data_handler.captcha_to_feas(login_capthca)# 根据前面获得参数,按照训练模型时图片转为特征的方式，将图片转为特征
 		# 识别验证码
 		verification_code = model_handler.predict(login_captcha)	
 		# 登陆
