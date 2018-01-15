@@ -76,7 +76,7 @@ class Student():
         page = self._reserver.open(req)
 
         page_returned = page.read().decode('utf-8')
-        # print(page_returned)
+        print("login page:\n", page_returned)
         if "登录失败: 用户名或密码不正确" in page_returned:
             print("password error")
             return False
@@ -199,7 +199,6 @@ class Student():
         'Connection': 'keep-alive',
         'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) '
         'Chrome/55.0.2883.87 Mobile Safari/537.36',
-        'Referer': r'http://seat.lib.whu.edu.cn/login?targetUri=%2F'
         }
         # Referer has some problem? delete?
 
@@ -234,9 +233,16 @@ class Student():
         
         res_url = r'http://seat.lib.whu.edu.cn/selfRes'
         self._reserving_information['captcha'] = verification_code
-        data = parse.urlencode(self._reserving_information).encode('utf-8')
+        data = {}
+        data['date'] = self._reserving_information['onDate']
+        data['seat'] = self._reserving_information['seat']
+        data['start'] = self._reserving_information['startMin']
+        data['end'] = self._reserving_information['endMin']
+        data['captcha'] = verification_code
+        # data = parse.urlencode(self._reserving_information).encode('utf-8')
 
-        req = self.__construct_request(url = res_url, data = data)
+        req = self.__construct_request(url = res_url, data = \
+            data)
 
         return req
 
@@ -261,6 +267,7 @@ class Student():
         # post(get?) the data 
         response = self._reserver.open(req)
         page = response.read().decode('utf-8')
+        print("reserve response page:\n", page)
 
         if "验证码错误" in page or "预约失败!" in page:
             return False
@@ -295,7 +302,7 @@ class Student():
         req = self.__construct_query_request(query_information)
         response = self._reserver.open(req)
         page = response.read().decode('utf-8')
-
+        print(page)
         page = eval(page)
 
         query_dict = {}
