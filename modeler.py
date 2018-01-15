@@ -366,7 +366,8 @@ class ModelHandler(object):
 
     def predict(self, fea):
         """predict feas' correspoding labels using self._model"""
-        return self._model.predict(fea)
+        pred = self._model.predict(fea)
+        return ''.join(chr(i) for i in pred)
 
 
 if __name__ == '__main__':
