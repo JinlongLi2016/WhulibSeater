@@ -169,7 +169,7 @@ class RawDataHandler(CaptchaCracker):
         feas, labs = np.vstack(feas_list), np.concatenate(labs_list)
         
         if fit_scaler:
-            self.Scaler.fit_transform(feas)
+            feas = self.Scaler.fit_transform(feas)
         else:
             feas = self.Scaler.transform(feas)
         
