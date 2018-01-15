@@ -52,12 +52,16 @@ class CaptchaCracker():
 
         # 2 提取 HOG 特征
         hog_features = self.get_hog_features(an_array) # tune params?
-
-        # 3展开得到特征
+        
+        # 3 得到  hu's moment 特征
+        hu_moment_features = self.get_hu_moment_features(an_array)
+        
+        # 4 展开得到特征
         raw_features = an_array.ravel()
 
 
-        return np.concatenate((hist_features, hog_features, raw_features))
+        return np.concatenate((hist_features, hog_features,
+            raw_features))
 
     ##########################################################################
     ############ Below is functions that extracts features ###################
@@ -86,6 +90,11 @@ class CaptchaCracker():
                            visualise=vis, feature_vector=feature_vec)
             return features
 
+    # Define a function to compute Hu's moment's features
+    def get_hu_moment_features(self, an_array):
+        # This function seems not to provide predictable features!!!
+        seven_invariants = cv2.HuMoments(cv2.moments(an_array)).flatten()
+        return seven_invariants[0:2]
 
 if __name__ == '__main__':
     cracker = CaptchaCracker()
