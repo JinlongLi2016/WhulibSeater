@@ -2,11 +2,14 @@
 
 **Naughty** program to crack whulib seat reserving system.
 # Requirments
+* Anonconda 3.6
+* OpenCV contrib 3.x 
+
 **本小工程需要依赖库，为简化安装步骤，可以安装[Anonconda3.6](https://www.anaconda.com/download/)**
 
-**此外本工程也依赖OpenCV库。该库安装起来比较麻烦，但是其强大的功能能够简化后续开发。Windows用户可以按照[此教程](https://www.solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/)安装，[从此](https://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv)下载相对应的编译好的文件.**
+**此外,也依赖OpenCV库,其强大的功能能够简化后续开发。Windows用户可以[从此](https://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv)下载相对应的编译好的文件,相对简单地按照[此教程](https://www.solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/)安装，**
 # Usage
-## 1. 标准用法示例(预定位置)
+## 1. [标准用法示例](https://github.com/JinlongLi2016/WhulibSeater/blob/master/standard_usage.py)(预定位置)
 	# standard_usage.py
 	from studenter import Student
 	from modeler import ModelHandler, RawDataHandler
@@ -26,11 +29,11 @@
 	has_login = False 	# 当前还未登陆,设置为False
 	while not has_login:	
 		# 获得登陆验证码
-		login_capthca = s.get_login_captcha()
+		login_captcha = s.get_login_captcha()
 		# 将login_captcha转换为模型可以处理的特征
-		feature = data_handler.captcha_to_feas(login_capthca)# 根据前面获得参数,按照训练模型时图片转为特征的方式，将图片转为特征
+		feature = data_handler.captcha_to_feas(login_captcha)# 根据前面获得参数,按照训练模型时图片转为特征的方式，将图片转为特征
 		# 识别验证码
-		verification_code = model_handler.predict(login_captcha)	
+		verification_code = model_handler.predict(feature)	
 		# 登陆
 		has_login = s.login(verification_code)
 	
@@ -38,8 +41,8 @@
 	has_reserved = False	# 当前还未预定,设置为False
 	while not has_reserved:
 		reserve_captcha = s.get_reserve_captcha()
-		feature = data_handler.captcha_to_feas(reserv_captcha)
-		verification_code = model_handler.predict(reserve_captcha)
+		feature = data_handler.captcha_to_feas(reserve_captcha)
+		verification_code = model_handler.predict(feature)
 		has_reserved = s.reserve_seat(verification_code)
 
 	# 代码运行至此, 我们应该已预定在reserve_information中设定的座位
@@ -64,8 +67,11 @@
 	
 	# 可以保存模型或者将之用于预测
 	model_handler.save_model(model = clf, fname = 'default.pkl', scaler = data_handler.Scaler)#保存
-	pred = model_handler.predict(features) # 对 (特征)features 进行预测
-	print("The predictions are: ", pred)
+	pred = model_handler.predict(features) # 对features(特征)进行预测
+	
+	# 正确率是?
+	acc = (pred==labels)/len(pred)
+	print("The predictions are: ", pred, "\nAccuracy is ", acc)
 
 ### 2.2 导入模型
 	from modeler import ModelHandler, RawDataHandler
