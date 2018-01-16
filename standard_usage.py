@@ -46,7 +46,7 @@ while (not has_login) and count < 3:
 	# 将login_captcha转换为模型可以处理的特征
 	feature = data_handler.captcha_to_feas(login_capthca)# 根据前面获得参数,按照训练模型时图片转为特征的方式，将图片转为特征
 	# 识别验证码
-	verification_code = model_handler.predict(feature)
+	verification_code = model_handler.predict_captcha(feature)
 	
 	print(verification_code)
 	# 登陆
@@ -81,7 +81,7 @@ while (not has_reserved) and count < 3:
 	reserve_captcha = s.get_reserve_captcha()
 	
 	feature = data_handler.captcha_to_feas(reserve_captcha)
-	verification_code = model_handler.predict(feature)
+	verification_code = model_handler.predict_captcha(feature)
 
 	print(verification_code)
 	has_reserved = s.reserve_seat(verification_code)

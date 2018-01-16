@@ -275,7 +275,7 @@ class RawDataHandler(CaptchaCracker):
             if y_end < n:
                 break
 
-        print(x_start, x_end, y_start, y_end)
+        # print(x_start, x_end, y_start, y_end)
         info_arr = an_array[x_start:x_end, y_start:y_end]
         if resize_shape is not None:
             info_arr = cv2.resize(info_arr, resize_shape, \
@@ -368,8 +368,13 @@ class ModelHandler(object):
     def predict(self, fea):
         """predict feas' correspoding labels using self._model"""
         pred = self._model.predict(fea)
-        return ''.join(chr(i) for i in pred)
+        return pred
 
+    def predict_captcha(self, fea):
+        """Predict captcha's corresponding characters.
+        """
+        pred = self.predict(fea)
+        return ''.join(chr(i) for i in pred)
 
 if __name__ == '__main__':
     # below is how modeler works

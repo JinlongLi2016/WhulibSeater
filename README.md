@@ -33,7 +33,7 @@
 		# 将login_captcha转换为模型可以处理的特征
 		feature = data_handler.captcha_to_feas(login_captcha)# 根据前面获得参数,按照训练模型时图片转为特征的方式，将图片转为特征
 		# 识别验证码
-		verification_code = model_handler.predict(feature)	
+		verification_code = model_handler.predict_captcha(feature)	
 		# 登陆
 		has_login = s.login(verification_code)
 	
@@ -42,7 +42,7 @@
 	while not has_reserved:
 		reserve_captcha = s.get_reserve_captcha()
 		feature = data_handler.captcha_to_feas(reserve_captcha)
-		verification_code = model_handler.predict(feature)
+		verification_code = model_handler.predict_captcha(feature)
 		has_reserved = s.reserve_seat(verification_code)
 
 	# 代码运行至此, 我们应该已预定在reserve_information中设定的座位
