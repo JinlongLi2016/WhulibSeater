@@ -117,7 +117,7 @@ class RawDataHandler(CaptchaCracker):
         """ 
         # 1st extract labels(if image filename) from img_fname_or_array
         if isinstance(img_fname_or_array, np.ndarray):
-            img_array = img_fname_or_array[:, :, 0]
+            img_array = cv2.cvtColor(img_fname_or_array, cv2.COLOR_BGR2GRAY)
         elif os.path.isfile(img_fname_or_array):
             _, labels = os.path.split(img_fname_or_array)
             labels, _= os.path.splitext(labels)
@@ -125,7 +125,8 @@ class RawDataHandler(CaptchaCracker):
                 print("One Image with wrong fname found...")
                 return None, None
             labels = np.array([ord(l) for l in labels]) # 1 dimentional label
-            img_array = self.load_image(img_fname_or_array)[:, :, 0]
+            img_array = self.load_image(img_fname_or_array)
+            img_array = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
         else:
             # raise Error
             raise ValueError("img_fname_or_array should be np.ndarray or a \
@@ -191,7 +192,7 @@ class RawDataHandler(CaptchaCracker):
         Returns:
             The captcha's feature, extraing from captcha array.
         """
-        cap = cap[:, :, 0]
+        cap = cv2.cvtColor(cap, cv2.COLOR_BGR2GRAY)
 
         # be consistent with the converting way in img_to_feas()
         cap = self.strip_array(cap)
