@@ -7,7 +7,7 @@
 
 **本小工程需要依赖库，为简化安装步骤，可以安装[Anonconda3.6](https://www.anaconda.com/download/)**
 
-**此外,也依赖OpenCV库,其强大的功能能够简化后续开发。Windows用户可以[从此](https://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv)下载相对应的编译好的文件,相对简单地按照[此教程](https://www.solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/)安装，**
+**此外,也依赖OpenCV库,其强大的功能能够简化后续开发。Windows用户可以[从此](https://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv)下载相对应的编译好的文件,按照[此教程](https://www.solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/)安装，**
 # Usage
 ## 1. [标准用法示例](https://github.com/JinlongLi2016/WhulibSeater/blob/master/standard_usage.py)(预定位置)
 	# standard_usage.py
