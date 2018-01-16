@@ -76,17 +76,19 @@ class Student():
         page = self._reserver.open(req)
 
         page_returned = page.read().decode('utf-8')
-        print("login page:\n", page_returned)
+ 
         if "登录失败: 用户名或密码不正确" in page_returned:
             print("password error")
             return False
         elif "验证码错误"in page_returned:
             print("验证码错误")
             return False
-        else:
+        elif "可用座位列表" in page_returned:
             print("passwrod right")
             return True
-    
+        else:
+            print("login page:\n", page_returned)
+            raise ValueError("page returned unfalimilr")
     def collect_captchas(self, num=2):
         """Collect captcha images in an interacting way (for training model).
 
@@ -189,7 +191,7 @@ class Student():
         return image_array
 
     # This can be a decrator?
-    def __construct_request(self, url, data=None):
+    def __construct_request(self, url, data=None, headers_dict=None):
         """Construct some types of requests: log, Reserving, request
         CollCAPT requests.
 
@@ -201,7 +203,8 @@ class Student():
         'Chrome/55.0.2883.87 Mobile Safari/537.36',
         }
         # Referer has some problem? delete?
-
+        if headers_dict is not None:
+            headers = {**headers, **headers_dict}
         if data is None:
             req = request.Request(url, headers = headers)
         else:
@@ -217,7 +220,11 @@ class Student():
             'captcha': verification_code
         }
         log_url = r'http://seat.lib.whu.edu.cn/auth/signIn'
-        req = self.__construct_request(url = log_url, data = log_data)
+        headers_dict = {
+            'Referer': r'http://seat.lib.whu.edu.cn/login?targetUri=%2F'
+        }
+        req = self.__construct_request(url = log_url, data = log_data,\
+            headers_dict = headers_dict)
         return req
 
     def __construct_captcha_request(self):
