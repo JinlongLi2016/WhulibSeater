@@ -22,7 +22,7 @@
 	data_handler = RawDataHandler()
 	model_handler = ModelHandler()
 
-	# 该对象需要导入模型 (假设在当前文件夹下 已经有一个训练好的模型,名字是default.pkl)
+	# 该对象需要导入模型 (假设在当前文件夹下 已经有一个训练好的模型,名字是default.pkl)(本页底有训练好的default.pkl)
 	model_handler.load_model('default.pkl', data_handler = data_handler) # data_handler传入,获得图片到特征的一些参数
 	
 	# 开始登陆网页
