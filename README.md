@@ -2,7 +2,7 @@
 
 **Naughty** program to crack whulib seat reserving system.
 # Requirments
-* Anonconda 3.6
+* Anaconda 3.6
 * OpenCV contrib 3.x 
 * TensorFlow 1.x
 
